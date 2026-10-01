@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodTrip</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        🌎 <span>FoodTrip</span>
+    </div>
+
+    <nav aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a>
+        <a href="#acerca">Acerca de</a>
+        <a href="#contacto">Contacto</a>
+    </nav>
+
+</header>
+
+
+<main>
+
+    <!-- ========================= -->
+    <!-- PANTALLA INICIAL -->
+    <!-- ========================= -->
+
+    <section id="inicio" class="pantalla activa">
+
+        <div class="hero">
+
+            <div class="hero-overlay"><span class="mini-titulo">UN DESTINO. MUCHOS SABORES.</span>
+
+                <h1>
+                    Explora destinos<br>con <em>sabor.</em>
+                </h1>
+
+                <p>
+                    Escribe el nombre de una ciudad y conoce el país
+                    al que pertenece y algunos platillos típicos que puedes probar.
+                </p>
+
+                <div class="buscador">
+
+                    <span>📍</span>
+
+                    <input
+                        id="ciudadInput" aria-label="Nombre de la ciudad"
+                        type="text"
+                        placeholder="Ejemplo: Roma"
+                    >
+
+                    <button id="buscarBtn">
+                        Buscar
+                    </button>
+
+                </div>
+
+                <p class="hero-nota">Tu próxima aventura empieza con una ciudad.</p>
+            </div>
+            <div class="scrapbook" aria-label="Postal ilustrativa de Roma">
+                <div class="ruta" aria-hidden="true">✈</div>
+                <span class="sello">FOODTRIP<br>DIARIO DE VIAJE<br>✦ 2026 ✦</span>
+                <figure class="polaroid">
+                    <div class="foto-roma"><span class="postal-fallback">ROMA<br><small>Una postal para inspirarte</small></span></div>
+                    <figcaption>Roma, Italia <span>Una ciudad por descubrir ↗</span></figcaption>
+                </figure>
+                <div class="recuerdo"><span aria-hidden="true">🍝</span><p>Sabores que<br><strong>se vuelven recuerdos.</strong></p></div>
+                <span class="nota-viaje">Colecciona experiencias.</span>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- PANTALLA DE CARGA -->
+    <!-- ========================= -->
+
+    <section id="cargando" class="pantalla" role="status" aria-live="polite">
+
+        <div class="card mensaje-card">
+
+            <span class="mini-titulo">SIGUIENTE PARADA: TU DESTINO</span><h2>Preparando tu viaje gastronómico</h2><div class="proceso">
+
+                <div>
+                    <div class="icono">📍</div>
+                    <p>
+                        1. Obteniendo ubicación<br>
+                        de la ciudad...
+                    </p>
+                </div>
+
+                <div class="flecha">
+                    →
+                </div>
+
+                <div>
+                    <div class="icono">🍴</div>
+                    <p>
+                        2. Buscando platillos<br>
+                        del país...
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="spinner"></div>
+
+            <p>
+                Un momento, estamos preparando tu resultado...
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- RESULTADO -->
+    <!-- ========================= -->
+
+    <section id="resultado" class="pantalla">
+
+        <div class="resultado-container">
+
+            <div class="encabezado-destino"><span class="postal-marca" aria-hidden="true">✈<br>FOODTRIP</span>
+
+                <div>
+
+                    <span class="mini-titulo">DESTINO ENCONTRADO</span><h1 id="tituloCiudad">
+                        Roma, Italia
+                    </h1>
+
+                    <p id="descripcionCiudad">
+                        Información del destino seleccionado.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="datos-destino">
+
+                <div class="dato">
+                    <span>🌎</span>
+
+                    <div>
+                        <small>País</small>
+                        <strong id="pais"></strong>
+                    </div>
+                </div>
+
+
+                <div class="dato">
+                    <span>🏛️</span>
+
+                    <div>
+                        <small>Ciudad</small>
+                        <strong id="ciudad"></strong>
+                    </div>
+                </div>
+
+
+                <div class="dato">
+                    <span>📍</span>
+
+                    <div>
+                        <small>Latitud</small>
+                        <strong id="latitud"></strong>
+                    </div>
+                </div>
+
+
+                <div class="dato">
+                    <span>📍</span>
+
+                    <div>
+                        <small>Longitud</small>
+                        <strong id="longitud"></strong>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="mapa-link">
+
+                <a
+                    id="googleMaps"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Ver ubicación en Google Maps ↗
+                </a>
+
+            </div>
+
+
+            <div class="seccion-comida">
+
+                <h2>
+                    🍴 Platillos típicos de
+                    <span id="paisComida"></span>
+                </h2>
+
+                <div
+                    id="platillos"
+                    class="grid-platillos"
+                >
+                </div>
+
+            </div>
+
+
+            <button
+                id="nuevaBusqueda"
+                class="btn-secundario"
+            >
+                Realizar otra búsqueda
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- ERROR -->
+    <!-- ========================= -->
+
+    <section id="error" class="pantalla" role="alert">
+
+        <div class="card mensaje-card">
+
+            <div class="error-icon">
+                !
+            </div>
+
+            <h2 id="tituloError">
+                No se encontró la ciudad
+            </h2>
+
+            <p id="mensajeError">
+                No pudimos encontrar la ciudad que ingresaste.
+                Verifica que el nombre sea correcto e intenta de nuevo.
+            </p>
+
+            <button id="intentarOtra">
+                Intentar otra búsqueda
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+<section id="acerca" class="seccion-info">
+
+    <div class="info-container">
+
+        <span class="mini-titulo">
+            SOBRE EL PROYECTO
+        </span>
+
+        <h2>
+            Viaja también a través de la gastronomía
+        </h2>
+
+        <p>
+            FoodTrip integra dos servicios web para ayudarte
+            a descubrir la gastronomía relacionada con tu
+            próximo destino.
+        </p>
+
+
+        <div class="info-cards">
+
+            <article>
+                <div class="info-icon">📍</div>
+
+                <h3>Encuentra tu destino</h3>
+
+                <p>
+                    Open-Meteo identifica la ciudad,
+                    país y coordenadas.
+                </p>
+            </article>
+
+
+            <article>
+                <div class="info-icon">🔄</div>
+
+                <h3>Conectamos servicios</h3>
+
+                <p>
+                    El país obtenido se transforma
+                    en la entrada del segundo servicio.
+                </p>
+            </article>
+
+
+            <article>
+                <div class="info-icon">🍝</div>
+
+                <h3>Descubre platillos</h3>
+
+                <p>
+                    TheMealDB proporciona platillos
+                    relacionados con esa gastronomía.
+                </p>
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer id="contacto" class="seccion-contacto">
+    <div>
+        <span class="mini-titulo">FOODTRIP</span>
+        <h2>Proyecto académico</h2>
+        <p>UT Santa Catarina</p>
+        <p class="materia">Aplicaciones Web Orientadas a Servicios · 2026</p>
+    </div>
+    <div class="equipo">
+        <span class="mini-titulo">INTEGRANTES</span>
+        <ul>
+            <li>Flores de Angel Ana Karen</li>
+            <li>Santos González Evelyn Aidé</li>
+            <li>Vidal Vidal Katia Itzel</li>
+        </ul>
+    </div>
+</footer>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>
