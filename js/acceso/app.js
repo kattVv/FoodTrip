@@ -1,4 +1,6 @@
-﻿const ciudadInput = document.getElementById("ciudadInput");
+import { procesarDestino } from '../procesos/foodTripProcess.js';
+
+const ciudadInput = document.getElementById("ciudadInput");
 const buscarBtn = document.getElementById("buscarBtn");
 
 const nuevaBusqueda = document.getElementById("nuevaBusqueda");
@@ -11,48 +13,12 @@ const pantallas = {
     error: document.getElementById("error")
 };
 
-
-/* ====================================
-   RELACIÓN PAÍS → ÁREA THEMEALDB
-==================================== */
-
-const areasPorCodigo = {
-
-    IT: "Italian",
-    MX: "Mexican",
-    JP: "Japanese",
-    CN: "Chinese",
-    FR: "French",
-    IN: "Indian",
-    CA: "Canadian",
-    HR: "Croatian",
-    EG: "Egyptian",
-    GR: "Greek",
-    IE: "Irish",
-    JM: "Jamaican",
-    MY: "Malaysian",
-    MA: "Moroccan",
-    NL: "Dutch",
-    PH: "Filipino",
-    PL: "Polish",
-    PT: "Portuguese",
-    RU: "Russian",
-    ES: "Spanish",
-    TH: "Thai",
-    TN: "Tunisian",
-    TR: "Turkish",
-    GB: "British",
-    US: "American",
-    VN: "Vietnamese"
-
-};
-
-
 /* ====================================
    CAMBIAR PANTALLA
 ==================================== */
 
 let mantenerInicio = false;
+/** Acceso: recibe un nombre de pantalla y actualiza su presentación. @returns {void} */
 function mostrarPantalla(nombre) {
     // Una respuesta pendiente no debe cambiar la navegación elegida.
     if (nombre === "cargando") mantenerInicio = false;
@@ -72,59 +38,10 @@ function mostrarPantalla(nombre) {
 
 
 /* ====================================
-   API 1 - OPEN METEO
-==================================== */
-
-async function obtenerUbicacion(ciudad) {
-
-    const url =
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(ciudad)}&count=1&language=es&format=json`;
-
-    const respuesta = await fetch(url);
-
-    if (!respuesta.ok) {
-        throw new Error("ERROR_OPEN_METEO");
-    }
-
-    const datos = await respuesta.json();
-
-    console.log("Open-Meteo:", datos);
-
-    if (!datos.results || datos.results.length === 0) {
-        throw new Error("CIUDAD_NO_ENCONTRADA");
-    }
-
-    return datos.results[0];
-}
-
-
-/* ====================================
-   API 2 - THEMEALDB
-==================================== */
-
-async function obtenerPlatillos(area) {
-
-    const url =
-        `https://www.themealdb.com/api/json/v1/1/filter.php?a=${encodeURIComponent(area)}`;
-
-    const respuesta = await fetch(url);
-
-    if (!respuesta.ok) {
-        throw new Error("ERROR_MEALDB");
-    }
-
-    const datos = await respuesta.json();
-
-    console.log("TheMealDB:", datos);
-
-    return datos.meals || [];
-}
-
-
-/* ====================================
    FUNCIÓN PRINCIPAL
 ==================================== */
 
+/** Acceso: lee la ciudad del DOM y presenta el resultado o error. @returns {Promise<void>} */
 async function buscarDestino() {
 
     const textoCiudad = ciudadInput.value.trim();
@@ -147,44 +64,8 @@ async function buscarDestino() {
 
     try {
 
-        /* API 1 */
-
-        const ubicacion =
-            await obtenerUbicacion(textoCiudad);
-
-
-        /* SALIDA API 1 */
-
-        const codigoPais =
-            ubicacion.country_code;
-
-
-        /* PROCESAMIENTO ENTRE APIs */
-
-        const areaMealDB =
-            areasPorCodigo[codigoPais];
-
-
-        if (!areaMealDB) {
-            throw new Error("PAIS_NO_DISPONIBLE");
-        }
-
-
-        /* API 2 */
-
-        const platillos =
-            await obtenerPlatillos(areaMealDB);
-
-
-        if (platillos.length === 0) {
-            throw new Error("SIN_PLATILLOS");
-        }
-
-
-        mostrarResultado(
-            ubicacion,
-            platillos
-        );
+        const resultado = await procesarDestino(textoCiudad);
+        mostrarResultado(resultado);
 
     }
 
@@ -203,40 +84,41 @@ async function buscarDestino() {
    MOSTRAR RESULTADO
 ==================================== */
 
-function mostrarResultado(ubicacion, platillos) {
+/** Acceso: presenta el resultado. @param {import('../modelo/foodTripModel.js').ResultadoFoodTrip} resultado @returns {void} */
+function mostrarResultado({ ubicacion, platillos }) {
 
     document.getElementById("tituloCiudad").textContent =
-        `${ubicacion.name}, ${ubicacion.country}`;
+        `${ubicacion.ciudad}, ${ubicacion.pais}`;
 
 
     document.getElementById("descripcionCiudad").textContent =
-        `Descubre algunos platillos relacionados con la gastronomía de ${ubicacion.country}.`;
+        `Descubre algunos platillos relacionados con la gastronomía de ${ubicacion.pais}.`;
 
 
     document.getElementById("pais").textContent =
-        ubicacion.country;
+        ubicacion.pais;
 
 
     document.getElementById("ciudad").textContent =
-        ubicacion.name;
+        ubicacion.ciudad;
 
 
     document.getElementById("latitud").textContent =
-        Number(ubicacion.latitude).toFixed(4);
+        Number(ubicacion.latitud).toFixed(4);
 
 
     document.getElementById("longitud").textContent =
-        Number(ubicacion.longitude).toFixed(4);
+        Number(ubicacion.longitud).toFixed(4);
 
 
     document.getElementById("paisComida").textContent =
-        ubicacion.country;
+        ubicacion.pais;
 
 
     /* GOOGLE MAPS */
 
     const mapsURL =
-        `https://www.google.com/maps?q=${ubicacion.latitude},${ubicacion.longitude}`;
+        `https://www.google.com/maps?q=${ubicacion.latitud},${ubicacion.longitud}`;
 
     document.getElementById("googleMaps").href =
         mapsURL;
@@ -265,8 +147,8 @@ function mostrarResultado(ubicacion, platillos) {
                 <div class="imagen-platillo">
 
                     <img
-                        src="${platillo.strMealThumb}"
-                        alt="${platillo.strMeal}"
+                        src="${platillo.imagen}"
+                        alt="${platillo.nombre}"
                         loading="lazy"
                     >
 
@@ -279,11 +161,11 @@ function mostrarResultado(ubicacion, platillos) {
                     </span>
 
                     <h3>
-                        ${platillo.strMeal}
+                        ${platillo.nombre}
                     </h3>
 
                     <p>
-                        Platillo disponible en la colección gastronómica de ${ubicacion.country}.
+                        Platillo disponible en la colección gastronómica de ${ubicacion.pais}.
                     </p>
 
                 </div>
@@ -304,6 +186,7 @@ function mostrarResultado(ubicacion, platillos) {
    ERRORES
 ==================================== */
 
+/** Acceso: traduce errores a mensajes comprensibles. @param {Error} error @returns {void} */
 function mostrarError(error) {
 
     const titulo =
@@ -343,8 +226,15 @@ function mostrarError(error) {
 
     }
 
+    else if (error.message === "TIMEOUT_OPEN_METEO" || error.message === "TIMEOUT_MEALDB") {
+        titulo.textContent = "Tiempo de espera agotado";
+        mensaje.textContent = "La consulta tardó demasiado. Intenta nuevamente en unos momentos.";
+    }
+    else if (error.message === "CONEXION_OPEN_METEO" || error.message === "CONEXION_MEALDB") {
+        titulo.textContent = "Error de conexión";
+        mensaje.textContent = "No pudimos conectarnos a uno de los servicios. Verifica tu conexión a Internet e intenta nuevamente.";
+    }
     else {
-
         titulo.textContent =
             "Servicio temporalmente no disponible";
 
@@ -406,7 +296,7 @@ function volverInicio() {
 
     ciudadInput.focus();
 }
-// Navegación de interfaz; las funciones de consulta permanecen intactas.
+// Navegación de la capa de acceso.
 document.querySelectorAll('nav a').forEach(enlace => {
     enlace.addEventListener("click", event => {
         if (enlace.getAttribute("href") === "#inicio") {
